@@ -13,9 +13,8 @@ namespace TestService.Model
             this.configuration = configuration;
         }    
         
-        //временной интервал
-        public int Timeout => configuration.GetValue<int>("Timeout");
-        public string ResultPath => configuration.GetValue<string>("ResultPath");        
+        //временной интервал работы сервиса
+        public int Timeout => configuration.GetValue<int>("Timeout");           
 
         //данные для конектна к базе
         public Dictionary<string, string> DataBase => configuration.GetSection("DataBase")

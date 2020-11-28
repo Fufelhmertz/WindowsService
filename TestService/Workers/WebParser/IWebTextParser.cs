@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Net;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,8 +6,9 @@ namespace TestService.Workers.WebParser
 {
     public interface IWebTextParser
     {
-        ConcurrentDictionary<string, string> GetTextFromWebPages(WebClient client);
-        string LoadWebPage(string page, WebClient client);
-        Task<ConcurrentDictionary<string, int>> CountWordsFromHtmlText(CancellationToken token, WebClient client);
+        Dictionary<string, string> GetTextFromWebPages();
+        string LoadWebPage(string page);
+        Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token);
     }
 }
+

@@ -39,8 +39,8 @@ namespace TestService
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)  
-                .UseWindowsService()
+            Host.CreateDefaultBuilder(args)
+                 .UseWindowsService()
                 .ConfigureAppConfiguration(config =>
                 {
                     config.AddJsonFile("appsettings.json");
@@ -51,10 +51,10 @@ namespace TestService
                 {
                     services.AddHostedService<Worker>();
 
-                    services.AddSingleton<Settings>();
+                    services.AddSingleton<Settings>();                   
                     services.AddSingleton<IWebTextParser, WebTextParser>();
                     services.AddSingleton<ISqlProvider, SqlProvider>();
-                })                 
+                })    
                 .UseSerilog();
     }
 }

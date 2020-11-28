@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using mshtml;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -17,9 +17,11 @@ namespace TestService.Workers.WebParser
         private readonly Settings settings;
         private readonly ILogger logger;
         private readonly IServiceProvider service;
+        private WebClient client;
 
-        public WebTextParser(IServiceProvider service)
+        public WebTextParser(IServiceProvider service, WebClient client)
         {
+            this.client = client;
             this.service = service;
             this.settings = service.GetRequiredService<Settings>();
             this.logger = service.GetRequiredService<ILogger<WebTextParser>>();
@@ -29,16 +31,16 @@ namespace TestService.Workers.WebParser
         /// <summary>
         /// Метод для преобразования HTML страницы в string
         /// </summary>  
-        public ConcurrentDictionary<string, string> GetTextFromWebPages(WebClient client)
+        public Dictionary<string, string> GetTextFromWebPages()
         {
             var webpage = settings.Websites;
-            var webPageDictionary = new ConcurrentDictionary<string, string>();
-            var text = new ConcurrentDictionary<string, string>();
+            var webPageDictionary = new Dictionary<string, string>();
+            var text = new Dictionary<string, string>();
             var htmldoc = (IHTMLDocument2)new HTMLDocument();
 
             foreach (var page in webpage)
             {
-                var result = LoadWebPage(page.Value, client);
+                var result = LoadWebPage(page.Value);
 
                 if (result.Any())
                 {
@@ -70,7 +72,7 @@ namespace TestService.Workers.WebParser
         /// <summary>
         /// Метод для загрузки страницы из конфига
         /// </summary>  
-        public string LoadWebPage(string url, WebClient client)
+        public string LoadWebPage(string url)
         {
             string result = string.Empty;
 
@@ -102,17 +104,16 @@ namespace TestService.Workers.WebParser
         /// <summary>
         /// Метод для получения текста с веб стравницы
         /// </summary>      
-        public Task<ConcurrentDictionary<string, int>> CountWordsFromHtmlText(CancellationToken token, WebClient client)
+        public Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token)
         {
             string pattern = "[a-zA-Zа-яА-ЯёЁ]+";
-            ConcurrentDictionary<string, string> text = GetTextFromWebPages(client);
 
-
+            Dictionary<string, string> text = GetTextFromWebPages();
 
             return Task.Run(() =>
             {
 
-                ConcurrentDictionary<string, int> dicWithCountingWords = new ConcurrentDictionary<string, int>();
+                Dictionary<string, int> dicWithCountingWords = new Dictionary<string, int>();
 
                 foreach (var doc in text)
                 {

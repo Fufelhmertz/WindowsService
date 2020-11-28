@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TestService.Model;
@@ -32,21 +33,20 @@ namespace TestService.Workers.DataBase
         /// <summary>
         /// Метод добавления записи в БД
         /// </summary>        
-        public async Task InsertIntoDB(ConcurrentDictionary<string, int> webText, CancellationToken token)
+        public async Task InsertIntoDB(Dictionary<string, int> webText, CancellationToken token)
         {
-            var webPageName = string.Empty;
-            int wordsCount = 0;
 
-            foreach (var res in webText)
+            if(!webText.Any())
             {
-                webPageName = res.Key;
-                wordsCount = res.Value;
+                logger.LogWarning($"Dictionary is empty");
             }
+
+            var webPageName = webText.Select(x => x.Key).First() ?? null;
+            var wordsCount = webText.Select(x => x.Value).ToString() ?? null;            
 
             var connectParams = settings.DataBase;
 
             string query = $"INSERT INTO {connectParams["Table"]} ({connectParams["Colum1"]},{connectParams["Colum2"]}) VALUES {webPageName},{wordsCount}";
-
             
             try
             {
@@ -56,7 +56,7 @@ namespace TestService.Workers.DataBase
 
                    logger.LogInformation($"Connection is open. {DateTimeOffset.Now}");
 
-                   var command = SetupCommand(query, connection);
+                   var command = SetupCommand(query);
 
                    int number = command.ExecuteNonQuery();
 
@@ -81,7 +81,7 @@ namespace TestService.Workers.DataBase
         }
 
 
-        private DbCommand SetupCommand(string query, SqlConnection connection, int? timeout = null)
+        private DbCommand SetupCommand(string query, int? timeout = null)
         {
             var command = connection.CreateCommand();
             command.CommandTimeout = Math.Min(300, Math.Max(0, timeout ?? 0));
