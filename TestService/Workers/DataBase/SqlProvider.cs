@@ -20,23 +20,23 @@ namespace TestService.Workers.DataBase
         private readonly Settings settings;
         private readonly ILogger logger;
         private readonly IServiceProvider service;
-        private readonly SqlConnection connection;
+        private SqlConnection connection;
 
-        public SqlProvider(IServiceProvider service, SqlConnection connection)
+        public SqlProvider(IServiceProvider service)
         {
             this.service = service;
             this.settings = service.GetRequiredService<Settings>();
-            this.logger = service.GetRequiredService<ILogger<SqlProvider>>();
-            this.connection = connection;
+            this.logger = service.GetRequiredService<ILogger<SqlProvider>>();            
         }
 
         /// <summary>
         /// Метод добавления записи в БД
         /// </summary>        
-        public async Task InsertIntoDB(Dictionary<string, int> webText, CancellationToken token)
+        public async Task InsertIntoDB(Dictionary<string, int> webText, CancellationToken token, SqlConnection connection)
         {
+            this.connection = connection;
 
-            if(!webText.Any())
+            if (!webText.Any())
             {
                 logger.LogWarning($"Dictionary is empty");
             }

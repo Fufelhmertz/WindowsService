@@ -35,10 +35,10 @@ namespace TestService
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             client = new WebClient();
-            webTextParser = new WebTextParser(service, client);
+            webTextParser = new WebTextParser(service);
             connectionString = new ConnectionString(service);
             connection = new SqlConnection(connectionString.GetConnectionString());
-            sqlprovider = new SqlProvider(service, connection);
+            sqlprovider = new SqlProvider(service);
 
             return base.StartAsync(cancellationToken);
         }
@@ -49,9 +49,9 @@ namespace TestService
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                var result = await webTextParser.CountingWordsOnPage(stoppingToken);
+                var result = await webTextParser.CountingWordsOnPage(stoppingToken, client);
 
-                await sqlprovider.InsertIntoDB(result, stoppingToken);
+                await sqlprovider.InsertIntoDB(result, stoppingToken, connection);
 
                 await Task.Delay(settings.Timeout, stoppingToken);
 

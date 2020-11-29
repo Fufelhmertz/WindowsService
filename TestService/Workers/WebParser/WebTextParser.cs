@@ -19,9 +19,8 @@ namespace TestService.Workers.WebParser
         private readonly IServiceProvider service;
         private WebClient client;
 
-        public WebTextParser(IServiceProvider service, WebClient client)
-        {
-            this.client = client;
+        public WebTextParser(IServiceProvider service)
+        {           
             this.service = service;
             this.settings = service.GetRequiredService<Settings>();
             this.logger = service.GetRequiredService<ILogger<WebTextParser>>();
@@ -104,8 +103,9 @@ namespace TestService.Workers.WebParser
         /// <summary>
         /// Метод для получения текста с веб стравницы
         /// </summary>      
-        public Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token)
+        public Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token, WebClient client)
         {
+            this.client = client;
             string pattern = "[a-zA-Zа-яА-ЯёЁ]+";
 
             Dictionary<string, string> text = GetTextFromWebPages();

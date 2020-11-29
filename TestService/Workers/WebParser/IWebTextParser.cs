@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace TestService.Workers.WebParser
     {
         Dictionary<string, string> GetTextFromWebPages();
         string LoadWebPage(string page);
-        Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token);
+        Task<Dictionary<string, int>> CountingWordsOnPage(CancellationToken token, WebClient client);
     }
 }
 
